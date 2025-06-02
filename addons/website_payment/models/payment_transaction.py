@@ -9,19 +9,26 @@ class PaymentTransaction(models.Model):
     _inherit = "payment.transaction"
 
     is_donation = fields.Boolean(string="Is donation")
+    donation_form_fields = fields.Json(string="Donation form fields")
 
     def _post_process(self):
         super()._post_process()
         for donation_tx in self.filtered(lambda tx: tx.state == 'done' and tx.is_donation):
             donation_tx._send_donation_email()
             msg = [_('Payment received from donation with following details:')]
-            for field in ['company_id', 'partner_id', 'partner_name', 'partner_country_id', 'partner_email']:
-                field_name = donation_tx._fields[field].string
-                value = donation_tx[field]
-                if value:
-                    if hasattr(value, 'name'):
-                        value = value.name
-                    msg.append(Markup('<br/>- %s: %s') % (field_name, value))
+            field_names = ['company_id', 'partner_id'] + list(
+                (donation_tx.donation_form_fields or {}).keys()
+            )
+
+            for key in field_names:
+                field = donation_tx._fields.get(key)
+                value = donation_tx[key] if field else donation_tx.donation_form_fields.get(key)
+                label = field.string if field else key
+
+                if field and field.type == 'many2one' and value:
+                    value = value.name
+                msg.append(Markup('<br/>- %s: %s') % (label, value))
+
             donation_tx.payment_id._message_log(body=Markup().join(msg))
 
     def _send_donation_email(self, is_internal_notification=False, comment=None, recipient_email=None):

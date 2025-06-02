@@ -55,7 +55,7 @@ export class FormOption extends BaseOptionComponent {
             this.dataForEmailTo = dataForValues["email_to"];
         }
         this.state = useDomState(async (el) => {
-            const modelName = getModelName(el);
+            this.modelName = getModelName(el);
 
             // Hide change form parameters option for forms e.g. User should not
             // be enable to change existing job application form to opportunity
@@ -64,7 +64,7 @@ export class FormOption extends BaseOptionComponent {
 
             // Get list of website_form compatible models.
             const models = await fetchModels(el);
-            const activeForm = models.find((m) => m.model === modelName);
+            const activeForm = models.find((m) => m.model === this.modelName);
 
             // If the form has no model it means a new snippet has been dropped.
             // Apply the default model selected in willStart on it.

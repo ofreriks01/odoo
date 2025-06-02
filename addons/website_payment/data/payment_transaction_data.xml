@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="payment.model_payment_transaction" model="ir.model">
+            <field name="website_form_key">donation_form</field>
+            <field name="website_form_access">False</field>
+            <field name="website_form_label">Donation Form</field>
+        </record>
+    </data>
+</odoo>
